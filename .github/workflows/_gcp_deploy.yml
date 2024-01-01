@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  workflow_call:
+    secrets:
+      workload-identity-pool:
+        description: "Workload Identity Pool"
+        required: true
+      gcp-project-id:
+        description: "GCP Project ID"
+        required: true
+    inputs:
+      target-env:
+        description: "Target Environment"
+        required: true
+        type: string
+
+env:
+  REGION: us-central1
+  SERVICE_NAME: go-cicd
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v3
+
+      - name: Authenticate GCP
+        id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.workload-identity-pool }}
+          service_account: github-actions-ci@${{ secrets.gcp-project-id }}.iam.gserviceaccount.com
+          access_token_lifetime: 600s
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: docker/login-action@v1
+        with:
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+          registry: ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./
+          file: ./docker/prod/Dockerfile
+          push: true
+          tags: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+#      - name: Deploy Cloud Run
+#        uses: google-github-actions/deploy-cloudrun@v2
+#        with:
+#          service: ${{ env.SERVICE_NAME }}-${{ inputs.target-env }}
+#          image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}

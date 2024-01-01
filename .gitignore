@@ -19,3 +19,6 @@
 
 # Go workspace file
 go.work
+
+### https://raw.github.com/github/gitignore/f9291de89f5f7dc0d3d87f9eb111b839f81d5dbc/Global/JetBrains.gitignore
+.idea/*
