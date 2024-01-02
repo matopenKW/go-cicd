@@ -32,7 +32,6 @@ steps:
       restore-keys: |
         ${{ runner.os }}-buildx-
 
-
   - name: Docker Auth
     id: docker-auth
     uses: docker/login-action@v1
