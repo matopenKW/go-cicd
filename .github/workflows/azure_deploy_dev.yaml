@@ -3,7 +3,7 @@ name: Deploy for Azure
 on:
   push:
     branches:
-      - 'feature/add-azure-ci'
+      - 'main'
 
 env:
   AZURE_CONTAINER_REGISTRY: feature
@@ -13,7 +13,6 @@ jobs:
   login:
     runs-on: ubuntu-latest
     permissions:
-      # OIDC 接続を実行するために必要
       id-token: write
 
     steps:
