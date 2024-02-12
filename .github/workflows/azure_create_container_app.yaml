@@ -1,0 +1,67 @@
+name: Create Container App
+
+on:
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: feature
+  SERVICE_NAME: go-cicd
+
+jobs:
+  login:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v3
+
+      - name: Login in to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          token_format: access_token
+
+      - name: Log in to container registry
+        id: acrtoken
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            accessToken=$(az acr login -n ${{ env.AZURE_CONTAINER_REGISTRY }} --expose-token --query accessToken -o tsv)
+            echo ::set-output name=token::$accessToken
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: docker/login-action@v1
+        with:
+          username: 00000000-0000-0000-0000-000000000000
+          password: ${{ steps.acrtoken.outputs.token }}
+          registry: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./
+          file: ./docker/Dockerfile
+          push: true
+          tags: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.SERVICE_NAME }}/develop:${{ github.sha }}
+
+      - name: Create Container App
+        uses: azure/container-app@v1
+        with:
+          resource-group: go-cicd
+          name: go-cicd-app
+          image: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.SERVICE_NAME }}/develop:${{ github.sha }}
+          port: 8080
+          os-type: Linux
+          cpu: 1
+          memory: 1.5
+          instance: 1
+          environment: Production
+          restart-policy: Always
+          public: true
+
+
