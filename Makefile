@@ -7,3 +7,6 @@ run:
 
 docker-build:
 	docker build -f ./docker/Dockerfile -t go-cicd .
+
+azure-cli:
+	docker run -it mcr.microsoft.com/azure-cli
