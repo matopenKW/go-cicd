@@ -49,7 +49,7 @@ jobs:
           push: true
           tags: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.SERVICE_NAME }}/develop:${{ github.sha }}
 
-      - name: Log in to container registry
+      - name: Create Container Apps
         uses: azure/CLI@v1
         with:
           inlineScript: | 
