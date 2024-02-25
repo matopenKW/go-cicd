@@ -1,0 +1,69 @@
+name: Connect DB
+
+on:
+  workflow_dispatch:
+    inputs:
+      text:
+        type: string
+        required: true
+        description: 'Text data'
+
+env:
+  AZURE_CONTAINER_REGISTRY: feature
+  SERVICE_NAME: go-cicd
+  BASTION_SERVER_NAME: myVM2
+  DB_NAME: mysql
+
+jobs:
+  output-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if the input is valid
+        run: |
+          echo "Check inputs value" >> $GITHUB_STEP_SUMMARY
+          echo "Text data=${{ github.event.inputs.text }}" >> $GITHUB_STEP_SUMMARY
+
+  judgment:
+    needs: output-inputs
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Please judgment...
+        run: echo "Judgment done" >> $GITHUB_STEP_SUMMARY
+
+  run:
+    needs: judgment
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    timeout-minutes: 3
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v4
+
+      - name: Login in to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          token_format: access_token
+
+      - name: Create SSH key
+        run: |
+          ssh-keygen -q -m PEM -t rsa -b 4096 -N "" -f pem
+
+      - name: Run az command
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.37.0
+          inlineScript: |
+            az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            az vm user update --resource-group ${{ env.SERVICE_NAME }} --name ${{ env.BASTION_SERVER_NAME }} --username azureuser --ssh-key-value ./pem.pub
+
+      - name: Run MySQL command
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ./pem azureuser@${{ secrets.AZURE_BASTION_ADDRESS }} \
+          <<EOF 
+            mysql -h ${{ env.SERVICE_NAME }}.mysql.database.azure.com -P 3306 -u ${{ secrets.AZURE_MYSQL_USER }} -p"${{ secrets.AZURE_MYSQL_PASSWORD }}" -e "SHOW TABLES WHERE Tables_in_mysql='${{ github.event.inputs.text }}';" ${{ env.DB_NAME }}
+          EOF
