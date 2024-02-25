@@ -1,0 +1,35 @@
+name: Connected DB
+
+on:
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: feature
+  SERVICE_NAME: go-cicd
+
+jobs:
+  login:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v3
+
+      - name: Login in to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          token_format: access_token
+
+      - name: Run az command
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.0.72
+          inlineScript: |
+            az account show
+
+
