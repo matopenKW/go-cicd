@@ -59,7 +59,8 @@ resource "azurerm_container_app" "go_cicd_app" {
     container {
       command = ["/bin/http"]
       cpu     = 0.5
-      image = "${azurerm_container_registry.go_cicd_cr.login_server}/develop:latest"
+#      image = "${azurerm_container_registry.go_cicd_cr.login_server}/develop:latest"
+      image = "go-cicd/develop:latest"
       memory  = "1Gi"
       name    = "test"
     }
