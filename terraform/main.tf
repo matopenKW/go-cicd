@@ -8,7 +8,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>2.0"
+      version = "3.89.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -27,4 +27,9 @@ terraform {
 resource "azurerm_resource_group" "go-cicd-rg" {
   location = "southafricanorth"
   name     = "go-cicd-rg"
+}
+
+resource "azurerm_resource_group" "go_cicd_rg" {
+  location = "southafricanorth"
+  name     = "go_cicd_rg"
 }
