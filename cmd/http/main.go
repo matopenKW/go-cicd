@@ -19,8 +19,23 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, World!")
 }
 
+func echoHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/echo" {
+		http.Error(w, "404 not found.", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != "GET" {
+		http.Error(w, "Method is not supported.", http.StatusNotFound)
+		return
+	}
+
+	fmt.Fprintf(w, "Echo!")
+}
+
 func main() {
 	http.HandleFunc("/hello", helloHandler)
+	http.HandleFunc("/echo", helloHandler)
 
 	fmt.Printf("Starting server at port 8080\n")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
