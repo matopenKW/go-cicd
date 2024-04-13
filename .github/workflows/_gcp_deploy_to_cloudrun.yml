@@ -72,7 +72,7 @@ jobs:
           context: ./
           file: ./docker/prod/Dockerfile
           push: true
-          tags: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.service-name }}/${{ env.service-name }}-${{ inputs.target-env }}:${{ github.sha }}
+          tags: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ inputs.service-name }}/${{ inputs.service-name }}-${{ inputs.target-env }}:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -80,4 +80,4 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.service-name }}-${{ inputs.target-env }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.service-name }}/${{ env.service-name }}-${{ inputs.target-env }}:${{ github.sha }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ inputs.service-name }}/${{ inputs.service-name }}-${{ inputs.target-env }}:${{ github.sha }}
