@@ -13,6 +13,8 @@ jobs:
     uses: ./.github/workflows/_gcp_deploy.yml
     secrets:
       workload-identity-pool: ${{ secrets.WORKLOAD_IDENTITY_POOL }}
+      gcp-service-account: github-actions-ci@${{ secrets.gcp-project-id }}.iam.gserviceaccount.com
       gcp-project-id: ${{ secrets.GCP_PROJECT_ID }}
     with:
       target-env: dev
+      service-name: go-cicd
