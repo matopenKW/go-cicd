@@ -69,6 +69,6 @@ jobs:
         with:
           inlineScript: |
             az containerapp update \
-            --name ${{ env.CONTAINER_APP_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name test2 \
+            --resource-group ${{ env.SERVICE_NAME }} \
             --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.SERVICE_NAME }}/develop:${{ github.sha }}

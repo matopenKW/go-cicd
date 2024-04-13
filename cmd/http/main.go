@@ -35,7 +35,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/hello", helloHandler)
-	http.HandleFunc("/echo", helloHandler)
+	http.HandleFunc("/echo", echoHandler)
 
 	fmt.Printf("Starting server at port 8080\n")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
