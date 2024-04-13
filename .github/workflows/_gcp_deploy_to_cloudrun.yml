@@ -18,7 +18,7 @@ on:
         required: true
         type: string
       service-name:
-        description: "Target Environment"
+        description: "Target Service Name"
         required: true
         type: string
 
@@ -32,6 +32,9 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Echo Start
+        run: echo "Start"
+
       - name: Check Out Repo
         uses: actions/checkout@v3
 
