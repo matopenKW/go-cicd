@@ -1,5 +1,5 @@
 resource "google_service_account" "github_actions" {
-  account_id   = "github-actions-sa"
+  account_id   = "github-actions-ci"
   display_name = "GitHub Actions Service Account"
 }
 
