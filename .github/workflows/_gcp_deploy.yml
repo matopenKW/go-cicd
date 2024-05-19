@@ -63,9 +63,17 @@ jobs:
           context: ./
           file: ./docker/Dockerfile
           push: true
-          tags: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
+          tags:
+           - ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
+           - ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+            
+      - name: Deploy attach-discount-billings Job to Cloud Run
+        run: |
+          gcloud run jobs update cloudrun-job \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }} \
+          --region ${{ env.REGION }}
 
 #      - name: Deploy Cloud Run
 #        uses: google-github-actions/deploy-cloudrun@v2

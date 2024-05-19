@@ -6,4 +6,3 @@ resource "google_project_iam_binding" "github_actions_binding" {
     "serviceAccount:${google_service_account.github_actions.email}"
   ]
 }
-
