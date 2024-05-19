@@ -63,9 +63,9 @@ jobs:
           context: ./
           file: ./docker/Dockerfile
           push: true
-          tags:
-           - ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
-           - ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:latest
+          tags: |
+           ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
+           ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
             
