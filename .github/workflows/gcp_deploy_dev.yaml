@@ -1,9 +1,9 @@
-name: Deploy for dev
+name: Deploy for GCP
 
 on:
   push:
     branches:
-      - '!*'
+      - 'feature/gcp-terraform'
 
 jobs:
   start-deploy:
@@ -12,7 +12,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/_gcp_deploy.yml
     secrets:
-      workload-identity-pool: ${{ secrets.WORKLOAD_IDENTITY_POOL }}
       gcp-project-id: ${{ secrets.GCP_PROJECT_ID }}
+      gcp-project-number: ${{ secrets.GCP_PROJECT_NUMBER }}
     with:
       target-env: dev

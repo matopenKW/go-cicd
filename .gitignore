@@ -24,4 +24,9 @@ go.work
 .idea/*
 
 ## terraform
-terraform/.terraform/*
+terraform/gcp/.terraform/*
+terraform/gcp/.terraform.lock.hcl
+terraform/gcp/errored.tfstate
+
+## project files
+bin/

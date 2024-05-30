@@ -3,11 +3,11 @@ name: Deploy for GCP
 on:
   workflow_call:
     secrets:
-      workload-identity-pool:
-        description: "Workload Identity Pool"
-        required: true
       gcp-project-id:
         description: "GCP Project ID"
+        required: true
+      gcp-project-number:
+        description: "GCP Project Number"
         required: true
     inputs:
       target-env:
@@ -34,7 +34,7 @@ jobs:
         uses: google-github-actions/auth@v0
         with:
           token_format: access_token
-          workload_identity_provider: ${{ secrets.workload-identity-pool }}
+          workload_identity_provider: projects/${{ secrets.gcp-project-number }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: github-actions-ci@${{ secrets.gcp-project-id }}.iam.gserviceaccount.com
           access_token_lifetime: 600s
 
@@ -61,11 +61,19 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./
-          file: ./docker/prod/Dockerfile
+          file: ./docker/Dockerfile
           push: true
-          tags: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
+          tags: |
+           ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }}
+           ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+            
+      - name: Deploy attach-discount-billings Job to Cloud Run
+        run: |
+          gcloud run jobs update cloudrun-job \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ secrets.gcp-project-id }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}-${{ inputs.target-env }}:${{ github.sha }} \
+          --region ${{ env.REGION }}
 
 #      - name: Deploy Cloud Run
 #        uses: google-github-actions/deploy-cloudrun@v2
