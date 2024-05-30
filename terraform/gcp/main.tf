@@ -11,8 +11,8 @@ terraform {
 }
 
 resource "google_project" "go_cicd" {
-  name            = "go-cicd"
-  project_id      = "wallon-go-cicd"
+  name       = "go-cicd"
+  project_id = "wallon-go-cicd"
   lifecycle {
     ignore_changes = [
       billing_account
