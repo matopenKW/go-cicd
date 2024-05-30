@@ -27,3 +27,6 @@ go.work
 terraform/gcp/.terraform/*
 terraform/gcp/.terraform.lock.hcl
 terraform/gcp/errored.tfstate
+
+## project files
+bin/
