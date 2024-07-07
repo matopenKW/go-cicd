@@ -11,9 +11,8 @@ resource "google_cloud_run_v2_service" "app" {
     volumes {
       name = "cloudsql"
       cloud_sql_instance {
-        instances = [google_sql_database_instance.go_cicd_db.connection_name]
+        instances = [google_sql_database_instance.go_cicd_db_instance.connection_name]
       }
-    }
 
     containers {
       image   = "us-central1-docker.pkg.dev/${google_project.go_cicd.project_id}/${google_artifact_registry_repository.go_cicd.repository_id}/go-cicd-dev:latest"
@@ -27,7 +26,11 @@ resource "google_cloud_run_v2_service" "app" {
       }
       env {
         name  = "DB_HOST"
-        value = google_sql_database_instance.go_cicd_db.connection_name
+        value = google_sql_database_instance.go_cicd_db_instance.connection_name
+      }
+      env {
+        name  = "DB_USER"
+        value = "user"
       }
       env {
         name  = "DB_PASSWORD"
@@ -35,7 +38,7 @@ resource "google_cloud_run_v2_service" "app" {
       }
       env {
         name  = "DB_NAME"
-        value = "user"
+        value = "main"
       }
     }
   }
